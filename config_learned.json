@@ -1,0 +1,6 @@
+{
+    "PING": {
+        "cmd": "random_ping_string",
+        "type": "string"
+    }
+}
