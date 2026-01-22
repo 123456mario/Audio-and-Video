@@ -1,0 +1,30 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+set host "192.168.1.50"
+set user "pi"
+set password "4200"
+
+# Python Command: Send Hardcoded Hex (Brightness 0%) to 192.168.1.60:15200
+set cmd "python3 -c 'import socket; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.settimeout(3); s.connect((\"192.168.1.60\",15200)); s.send(bytes.fromhex(\"55aa0000feff01ffffff010001000002010000555a\")); s.close(); print(\"SENT_SUCCESS\")'"
+
+spawn ssh $user@$host $cmd
+
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password:" {
+        send "$password\r"
+    }
+}
+
+expect "SENT_SUCCESS" {
+    send_user "\n>>> Command Sent Successfully to Novastar! <<<\n"
+} timeout {
+    send_user "\n>>> Failed or Timed Out (Check IP/Port) <<<\n"
+    exit 1
+}
+
+expect eof

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Set 4: Flap Drop</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .case-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 380px;
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+            text-align: center;
+        }
+
+        .module-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 250px;
+            /* Explicit height to contain the flip layout */
+            /* gap is handled by absolute positioning for the flap logic */
+        }
+
+        /* Common Button Style */
+        .btn-style {
+            width: 366px;
+            height: 106px;
+            border-radius: 10px;
+            background-color: #006432;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            backface-visibility: hidden;
+        }
+
+        .text {
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            -webkit-text-stroke: 1px white;
+            z-index: 10;
+        }
+
+        .water-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background-color: #009953;
+            z-index: 1;
+            border-radius: 10px;
+        }
+
+        /* 
+           CASE 9: MECHANICAL FLAP DROP
+           Structure:
+           - Top Position (Static Placeholder): Hides when flap drops? Or stays empty?
+           - Bottom Position (Static Placeholder): Shows 'Next' eventually?
+           - Flap: The moving element. 
+             - Front Face: "Start" (Green)
+             - Back Face: "Next" (Green)
+             - Pivot: Bottom edge of Top position.
+           
+           Layout:
+           Top Button Top: 0px.
+           Bottom Button Top: 106px + Gap (let's say 20px) = 126px.
+           
+           Actually, for a continuous "Roll", the pivot should be halfway if they were touching.
+           If there is a gap, it "Swings" across the gap.
+           Pivot at "Top Button Bottom Edge" means it lands at "Top + 2*Height".
+           106 * 2 = 212px.
+           If Gap is 20px, Bottom starts at 126px.
+           212 vs 126. It overshoots.
+           
+           The user said "Falling down". 
+           Let's animate the Start Button translating Y AND Rotating X.
+           Simulating a "Falling Leaf" or "Tumbling Block".
+           
+           Let's try:
+           1. Start Button fills.
+           2. Start Button rotates X (top comes forward/down) while moving Y down.
+           3. It lands on the Bottom position.
+        */
+
+        .case9 .perspective-container {
+            perspective: 1200px;
+            width: 366px;
+            height: 300px;
+            position: relative;
+        }
+
+        .case9 .btn-top {
+            top: 0;
+            transform-style: preserve-3d;
+            transform-origin: center bottom;
+            /* Pivot at bottom */
+            z-index: 10;
+        }
+
+        /* The Bottom Target (Ghost) */
+        .case9 .btn-bottom-target {
+            top: 130px;
+            /* Slight gap */
+            opacity: 0.3;
+            /* Dim target */
+            background-color: #004d26;
+            /* Darker base */
+        }
+
+        /* Animation Classes */
+
+        /* Initial State */
+        .case9 .btn-top .front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #006432;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backface-visibility: hidden;
+        }
+
+        .case9 .btn-top .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #009953;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backface-visibility: hidden;
+            transform: rotateX(180deg);
+            /* Back face */
+        }
+
+        .case9.active .btn-top {
+            /* 
+               Complex Animation:
+               1. Rotate X -180deg (Flip down)
+               2. Translate Y to land on bottom.
+               If we pivot at bottom edge, it flips to (Height*2).
+               Height=106. LandY=212.
+               TargetY=130. 
+               So we need to Translate Y upwards relative to the pivot flip? 
+               Or just translate the whole element Pivot.
+               
+               Let's try a "Roll" animation keyframe.
+            */
+            animation: roll-drop 1.5s cubic-bezier(0.5, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes roll-drop {
+            0% {
+                transform: translateY(0) rotateX(0deg);
+            }
+
+            40% {
+                /* Start Tipping forward */
+                transform: translateY(20px) rotateX(-45deg);
+            }
+
+            100% {
+                /* Land on bottom target */
+                /* If we rotate -180, back face is up. */
+                /* Text "Next" should be on Back Face. */
+                /* Distance to travel: 130px. */
+                /* But rotation moves it too. */
+                /* Let's try matching visually. */
+                transform: translateY(130px) rotateX(-180deg);
+                /* Wait, if I translate Y 130, center moves 130. */
+                /* If I rotate -180 around center, it stays inplace. */
+                /* If I rotate around bottom... */
+            }
+        }
+
+        /* Let's reset origin to Center for easier control with Translate */
+        .case9 .btn-top {
+            transform-origin: center center;
+        }
+
+        /* Adjust Keyframe for Center Origin */
+        /* To simulate "Tumbling down":
+           Rotate -180 (Flip Front-Over-Down).
+           Translate Y +130px.
+        */
+    </style>
+</head>
+
+<body>
+
+    <h1>Transition Set 4: Falling Flap</h1>
+
+    <div class="container">
+
+        <!-- CASE 9 -->
+        <div class="case-wrapper">
+            <div class="label">9. Tumbling Drop (Rollover)</div>
+            <div class="module-group case9">
+                <div class="perspective-container">
+
+                    <!-- Bottom Placeholder (Target) -->
+                    <div class="btn-style btn-bottom-target">
+                        <!-- Empty or faint outline -->
+                    </div>
+
+                    <!-- The Falling Button -->
+                    <div class="btn-style btn-top" id="tumbler">
+                        <div class="front">
+                            <!-- Front: Start -->
+                            <div class="water-fill" id="fill9"></div>
+                            <div class="text">시작하기</div>
+                        </div>
+                        <div class="back">
+                            <!-- Back: Next -->
+                            <div class="text"
+                                style="transform: rotateX(180deg); /* Fix text orientation for backface? No, backface is already rotated 180 by parent flip? Check. */ ">
+                                다음 페이지 이동</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 50px; text-align: center;">
+        <button onclick="playAnimation()"
+            style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #333; color: white; border-radius: 5px;">▶
+            Play "Tumble Drop"</button>
+    </div>
+
+    <script>
+        function playAnimation() {
+            const wrapper = document.querySelector('.case9');
+            const fill = document.getElementById('fill9');
+
+            // RESET
+            wrapper.classList.remove('active');
+            fill.style.transition = 'none';
+            fill.style.width = '0%';
+
+            // Force Reflow
+            void wrapper.offsetWidth;
+
+            // STEP 1: FILL RIGHT
+            setTimeout(() => {
+                fill.style.transition = 'width 2s linear';
+                fill.style.width = '100%';
+            }, 100);
+
+            // STEP 2: TUMBLE DROP
+            setTimeout(() => {
+                wrapper.classList.add('active');
+            }, 2100);
+        }
+    </script>
+</body>
+
+</html>

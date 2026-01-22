@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Set 10: Blink & Wipe</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .case-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 380px;
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+            text-align: center;
+        }
+
+        .module-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 250px;
+        }
+
+        .btn-module {
+            width: 366px;
+            height: 106px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease-out;
+        }
+
+        .text {
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        /* STATES */
+        .state-active {
+            background-color: #009953;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            opacity: 1;
+        }
+
+        .state-inactive {
+            background-color: #004422;
+            border: 2px solid transparent;
+            color: rgba(255, 255, 255, 0.2);
+            opacity: 0.5;
+        }
+
+        /* CASE 17: BLINK ALERT */
+        .case17 .btn-bottom {
+            /* Blink animation class added via JS */
+        }
+
+        @keyframes blink-effect {
+            0% {
+                opacity: 0.2;
+                background-color: #004422;
+            }
+
+            50% {
+                opacity: 1;
+                background-color: #009953;
+            }
+
+            100% {
+                opacity: 0.2;
+                background-color: #004422;
+            }
+        }
+
+        .blinking {
+            animation: blink-effect 0.4s 4;
+            /* Blink 4 times */
+        }
+
+        /* CASE 18: 3-STEP WIPE */
+        .case18 .btn-top,
+        .case18 .btn-bottom {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .case18 .fill {
+            position: absolute;
+            background-color: #009953;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transition: height 0.3s steps(3, end);
+            /* Steps? Or just JS controlled discrete steps */
+        }
+
+        /* We will control steps via JS for clear demonstration of "3 Images" */
+    </style>
+</head>
+
+<body>
+
+    <h1>Transition Set 10: Blink & 3-Step</h1>
+
+    <div class="container">
+
+        <!-- CASE 17: Blink Alert -->
+        <div class="case-wrapper">
+            <div class="label">17. Blink Alert</div>
+            <div class="module-group case17">
+                <div class="btn-module state-active" id="top17">
+                    <div class="text">시작하기</div>
+                </div>
+                <div class="btn-module state-inactive" id="bottom17">
+                    <div class="text">다음 페이지 이동</div>
+                </div>
+            </div>
+            <div style="margin-top:20px; color:#666;">Attention grabber using rapid blinking.</div>
+        </div>
+
+        <!-- CASE 18: 3-Step Wipe -->
+        <div class="case-wrapper">
+            <div class="label">18. 3-Step Wipe</div>
+            <div class="module-group case18">
+                <div class="btn-module state-inactive" style="background:#004422;">
+                    <div class="fill" id="topFill18"></div>
+                    <div class="text" style="z-index:10; color:white;">시작하기</div>
+                </div>
+                <div class="btn-module state-inactive" style="background:#004422;">
+                    <div class="fill" id="bottomFill18" style="height:0%;"></div>
+                    <div class="text" style="z-index:10; color:white;">다음 페이지 이동</div>
+                </div>
+            </div>
+            <div style="margin-top:20px; color:#666;">Only 3 frames needed per button.</div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 50px; text-align: center;">
+        <button onclick="playAnimation()"
+            style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #333; color: white; border-radius: 5px;">▶
+            Play Alternatives</button>
+    </div>
+
+    <script>
+        function playAnimation() {
+            // CASE 17: BLINK
+            const top17 = document.getElementById('top17');
+            const bottom17 = document.getElementById('bottom17');
+
+            // Reset
+            top17.className = 'btn-module state-active';
+            bottom17.className = 'btn-module state-inactive';
+            bottom17.classList.remove('blinking');
+            void bottom17.offsetWidth;
+
+            setTimeout(() => {
+                top17.className = 'btn-module state-inactive';
+                // Start Blink
+                bottom17.classList.add('blinking');
+
+                // End Blink state (Solid On)
+                setTimeout(() => {
+                    bottom17.classList.remove('blinking');
+                    bottom17.className = 'btn-module state-active';
+                }, 1600); // 0.4s * 4 = 1.6s
+            }, 500);
+
+            // CASE 18: 3-STEP
+            const topFill = document.getElementById('topFill18');
+            const bottomFill = document.getElementById('bottomFill18');
+
+            // Reset
+            topFill.style.transition = 'none';
+            topFill.style.height = '100%';
+            bottomFill.style.transition = 'none';
+            bottomFill.style.height = '0%';
+
+            setTimeout(() => {
+                // Step 1: Start (Already there)
+
+                // Step 2: Mid (Both Multi-State)
+                setTimeout(() => {
+                    topFill.style.height = '50%';
+                    bottomFill.style.height = '50%';
+                }, 600);
+
+                // Step 3: End
+                setTimeout(() => {
+                    topFill.style.height = '0%';
+                    bottomFill.style.height = '100%';
+                }, 1200);
+            }, 500);
+        }
+    </script>
+</body>
+
+</html>

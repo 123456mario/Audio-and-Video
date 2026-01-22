@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Fill Left-to-Right</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@900&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify_content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffffff;
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            /* Adjust width to fit text, or use fit-content */
+            width: fit-content;
+        }
+
+        /* Common text styles */
+        .text {
+            font-size: 15vw;
+            font-weight: 900;
+            white-space: nowrap;
+            user-select: none;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        /* 1. Underlying Empty Text */
+        .text-base {
+            color: #ffffff;
+            /* White interior */
+            -webkit-text-stroke: 1px #d0d0d0;
+            /* Light gray outline */
+            /* Add a subtle shadow so it's visible on white bg if Stroke isn't enough */
+            filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.05));
+        }
+
+        /* 2. Filling Container (The Mask) */
+        .fill-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            /* Start empty */
+            overflow: hidden;
+
+            /* Animation: Fill 0% to 100% */
+            animation: fillLeftToRight 4s ease-in-out infinite;
+
+            /* Add a border-right to simulate the "water edge"? Optional. */
+            /* border-right: 2px solid #64b5f6; */
+        }
+
+        /* 3. Filled Text (Inside the mask) */
+        .text-filled {
+            color: #2196F3;
+            /* Water Blue */
+            /* No stroke or matching stroke */
+            /* -webkit-text-stroke: 1px #1976D2; */
+
+            /* IMPORTANT: This must retain the full width even when mask is small */
+            position: absolute;
+            top: 0;
+            left: 0;
+            /* We need to ensure this element behaves as if it's the full text */
+            /* Since .text has fit-content, we can't just say width: 100vw.
+               If we inherit width from parent .container, it works.
+            */
+        }
+
+        @keyframes fillLeftToRight {
+            0% {
+                width: 0%;
+            }
+
+            10% {
+                width: 0%;
+                /* Initial pause */
+            }
+
+            80% {
+                width: 100%;
+                /* Fill complete */
+            }
+
+            100% {
+                width: 100%;
+                /* Stay full */
+            }
+        }
+
+        /* Optional: Add a "wave" on the leading edge using a pseudo element on the mask?
+           It's hard to clip strictly to text AND have a wave overlay on the edge that extends outside text.
+           But we can make the fill itself have a wave texture active.
+        */
+
+        .text-filled {
+            /* Let's give the liquid some internal movement/shimmer */
+            background: linear-gradient(90deg, #2196F3, #42A5F5, #2196F3);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 100% 0;
+            }
+
+            100% {
+                background-position: -100% 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Base Layer -->
+        <div class="text text-base">시작 하기</div>
+
+        <!-- Fill Mask Layer -->
+        <div class="fill-mask">
+            <div class="text text-filled">시작 하기</div>
+        </div>
+    </div>
+
+</body>
+
+</html>

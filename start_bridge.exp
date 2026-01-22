@@ -1,0 +1,31 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+set host "192.168.1.50"
+set user "pi"
+set password "4200"
+
+spawn ssh $user@$host
+
+expect {
+    "yes/no" { send "yes\r"; exp_continue }
+    "password:" { send "$password\r" }
+}
+
+expect "pi@"
+
+# Check if already running
+send "pgrep -f novastar_bridge.py\r"
+expect {
+    -re "\[0-9]+" {
+        send_user "\nBridge already running.\n"
+    }
+    timeout {
+        # Start in background with nohup
+        send "nohup python3 -u /home/pi/behringer-mixer/novastar_bridge.py > /home/pi/behringer-mixer/bridge.log 2>&1 & \r"
+        expect "pi@"
+        send_user "\nBridge STARTED in background.\n"
+    }
+}
+send "exit\r"
+expect eof

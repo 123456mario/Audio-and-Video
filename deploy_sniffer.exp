@@ -1,0 +1,22 @@
+#!/usr/bin/expect -f
+
+set timeout 20
+set host "192.168.1.50"
+set user "pi"
+set password "4200"
+set local_file "/Users/gimdongseong/Documents/GitHub/behringer-mixer/universal_sniffer.py"
+set remote_dir "/home/pi/behringer-mixer/"
+
+spawn scp $local_file $user@$host:$remote_dir
+
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password:" {
+        send "$password\r"
+    }
+}
+
+expect eof

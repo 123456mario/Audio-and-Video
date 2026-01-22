@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Set 6: Fold & Liquid</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .case-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 380px;
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+            text-align: center;
+        }
+
+        .module-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 250px;
+        }
+
+        /* Common Button Style */
+        .btn-style {
+            width: 366px;
+            height: 106px;
+            border-radius: 10px;
+            background-color: #006432;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: absolute;
+        }
+
+        .text {
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        /* 
+           CASE 11: FOLD DROP (Refined)
+           - Top button is the only actor.
+           - It hinges at the BOTTOM edge.
+           - It swings 180 degrees down.
+           - Front face: Start. Back face: Next.
+        */
+        .case11 .perspective-container {
+            perspective: 1200px;
+            width: 366px;
+            height: 300px;
+            position: relative;
+        }
+
+        .case11 .flipper {
+            width: 100%;
+            height: 106px;
+            position: absolute;
+            top: 0;
+            transform-style: preserve-3d;
+            transform-origin: bottom center;
+            /* Hinge at bottom */
+            transition: transform 1.5s cubic-bezier(0.5, 0, 0.2, 1);
+        }
+
+        .case11.active .flipper {
+            transform: rotateX(-180deg) translateY(20px);
+            /* Flip 180 and move down slightly for gap */
+            /* Wait, if I rotate -180 at bottom edge, it ends up at Top+Height*2. */
+            /* Top is 0. Height 106. LandY = 212. */
+            /* Bottom position expected: 126px (Gap 20). */
+            /* Difference: 212 - 126 = 86px too low? */
+            /* Actually, if we want it to land exactly at 126px, we need to adjust */
+            /* Let's tweak origin or translate. */
+        }
+
+        .case11 .front,
+        .case11 .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden;
+        }
+
+        .case11 .front {
+            background-color: #009953;
+        }
+
+        .case11 .back {
+            background-color: #009953;
+            transform: rotateX(180deg);
+        }
+
+        /* 
+           CASE 12: LIQUID FLOW
+           - Top button 'drains' (Clipping mask goes down).
+           - Stream appears connecting Top and Bottom.
+           - Bottom button 'fills' (Clipping mask goes up).
+        */
+        .case12 .btn-top {
+            top: 0;
+            background-color: #009953;
+            transition: height 1s linear 0.5s;
+            /* Shrink? No, keep size, clip it. */
+        }
+
+        .case12 .stream {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 0px;
+            background-color: #009953;
+            z-index: 5;
+            transition: height 0.5s linear;
+        }
+
+        .case12 .btn-bottom {
+            top: 126px;
+            background-color: #006432;
+            /* Empty/Dark base */
+            overflow: hidden;
+        }
+
+        .case12 .btn-bottom .fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background-color: #009953;
+            transition: height 1s linear 1s;
+        }
+
+        .case12.active .stream {
+            height: 40px;
+            /* Connects 106 to 126? Gap is 20. Need overlap. */
+        }
+
+        .case12.active .btn-top {
+            /* Drain effect */
+            height: 0px;
+            margin-top: 106px;
+            /* Shrink from top? */
+            /* To drain downwards: Move top edge down? */
+            /* Clip path is easier. */
+            clip-path: inset(100% 0 0 0);
+            /* Cut from top? No, drain means liquid level drops. Cut from top. */
+            transition: clip-path 1s linear;
+        }
+
+        .case12.active .btn-bottom .fill {
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Transition Set 6: Fold vs Liquid</h1>
+
+    <div class="container">
+
+        <!-- CASE 11 (Fold Drop) -->
+        <div class="case-wrapper">
+            <div class="label">11. Fold-Down Flip</div>
+            <div class="module-group case11">
+                <div class="perspective-container">
+                    <!-- Placeholder for Bottom Position (Ghost) -->
+                    <div class="btn-style" style="top: 126px; background: rgba(0,100,50,0.2); z-index:0;"></div>
+
+                    <div class="flipper" id="flipper11">
+                        <div class="front">
+                            <div class="text">시작하기</div>
+                        </div>
+                        <div class="back">
+                            <div class="text">다음 페이지 이동</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASE 12 (Liquid Flow) -->
+        <div class="case-wrapper">
+            <div class="label">12. Liquid Flow</div>
+            <div class="module-group case12">
+                <div class="btn-style btn-top" id="top12">
+                    <div class="text">시작하기</div>
+                </div>
+
+                <div class="stream" id="stream12"></div>
+
+                <div class="btn-style btn-bottom">
+                    <div class="fill" id="fill12"></div>
+                    <div class="text" style="z-index: 20;">다음 페이지 이동</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 50px; text-align: center;">
+        <button onclick="playAnimation()"
+            style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #333; color: white; border-radius: 5px;">▶
+            Play Animations</button>
+    </div>
+
+    <script>
+        function playAnimation() {
+            // CASE 11
+            const case11 = document.querySelector('.case11');
+            case11.classList.remove('active');
+
+            // CASE 12
+            const case12 = document.querySelector('.case12');
+            const top12 = document.getElementById('top12');
+            const stream12 = document.getElementById('stream12');
+            const fill12 = document.getElementById('fill12');
+
+            // Reset 12
+            case12.classList.remove('active');
+            top12.style.clipPath = 'inset(0 0 0 0)';
+            stream12.style.height = '0px';
+            stream12.style.transition = 'none';
+            fill12.style.height = '0%';
+
+            // Force Reflow
+            void case11.offsetWidth;
+
+            setTimeout(() => {
+                // Play 11
+                case11.classList.add('active');
+
+                // Play 12 sequence
+                /*
+                  1. Stream goes down.
+                  2. Top Drains.
+                  3. Bottom Fills.
+                */
+                stream12.style.transition = 'height 0.3s ease-out';
+                stream12.style.height = '126px'; // Reach bottom?
+
+                setTimeout(() => {
+                    top12.style.transition = 'clip-path 1s linear';
+                    top12.style.clipPath = 'inset(0 0 100% 0)'; // Clip from bottom up? Or Top down? Draining.. level goes DOWN. So inset top?
+                    // inset(top right bottom left)
+                    // Level dropping: top inset increases.
+                    top12.style.clipPath = 'inset(100% 0 0 0)';
+
+                    fill12.style.transition = 'height 1s linear';
+                    fill12.style.height = '100%';
+                }, 300);
+
+                setTimeout(() => {
+                    stream12.style.transition = 'height 0.3s ease-out 0.5s'; // Delay?
+                    stream12.style.top = '220px'; // Move down?
+                    stream12.style.height = '0px'; // Disappear
+                }, 1300);
+
+            }, 500);
+        }
+    </script>
+</body>
+
+</html>

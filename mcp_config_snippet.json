@@ -1,0 +1,10 @@
+{
+    "obsidian-filesystem": {
+        "command": "npx",
+        "args": [
+            "-y",
+            "@modelcontextprotocol/server-filesystem",
+            "/Users/gimdongseong/Library/Mobile Documents/iCloud~md~obsidian/Documents/Mario_inside/obsidian-memory"
+        ]
+    }
+}

@@ -1,0 +1,80 @@
+# test_send_wing.py: Wing 시뮬레이션 – OSC 데이터 전송 (디버깅 + 연결 확인)
+
+from pythonosc import udp_client
+import time
+import sys
+import socket  # 포트 연결 테스트용
+
+# bridge의 OSC 서버 IP/포트
+BRIDGE_IP = "192.168.1.9"  # 맥북 IP (네트워크 테스트용, RPi 시 RPi IP)
+BRIDGE_PORT = 50000
+
+# 포트 연결 테스트 (bridge 리스닝 확인)
+def check_bridge_connection(ip, port):
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP for OSC
+        s.settimeout(1)
+        s.sendto(b"test", (ip, port))  # 간단 패킷 보내기 (응답 없어도 연결 시도)
+        s.close()
+        print(f"✅ bridge 연결 테스트 성공: {ip}:{port} (패킷 전송 가능)")
+        return True
+    except Exception as e:
+        print(f"❌ bridge 연결 테스트 실패: {ip}:{port} – {e} (bridge 실행 확인, lsof -i :{port})")
+        return False
+
+# 클라이언트 생성 + 테스트
+try:
+    if not check_bridge_connection(BRIDGE_IP, BRIDGE_PORT):
+        sys.exit(1)
+    client = udp_client.SimpleUDPClient(BRIDGE_IP, BRIDGE_PORT)
+    print(f"✅ OSC 클라이언트 생성: {BRIDGE_IP}:{BRIDGE_PORT} (디버깅 모드)")
+except Exception as e:
+    print(f"❌ OSC 클라이언트 생성 오류: {e}")
+    sys.exit(1)
+
+# CH1 패스
+PATHS = {
+    "ch1_mute": "/ch/01/mute",
+    "ch1_vol": "/ch/01/fader",
+}
+
+print("🧪 Wing 시뮬레이션 시작: OSC 데이터 전송 (디버깅 모드)...")
+print("   - bridge 실행 중 확인 (lsof -i :50000). 파일 로그: tail -f /tmp/bridge_debug.log")
+
+def send_subscribe_renew():
+    print("\n--- 구독 renew 모의 (디버깅) ---")
+    try:
+        client.send_message("/ch/01/mute s~renew", [8])
+        print(f"📡 renew 전송 완료: /ch/01/mute s~renew [8] (bridge 로그 확인)")
+        time.sleep(1)
+        client.send_message("/ch/01/fader s~renew", [8])
+        print(f"📡 renew 전송 완료: /ch/01/fader s~renew [8]")
+    except Exception as e:
+        print(f"❌ renew 전송 오류: {e}")
+
+def send_ch1_data():
+    print("\n--- CH1 데이터 전송 (디버깅) ---")
+    try:
+        client.send_message(PATHS["ch1_mute"], 1.0)
+        print(f"📤 전송 완료: {PATHS['ch1_mute']} = 1.0 (bridge '🎵 OSC 수신' 로그 확인)")
+        time.sleep(2)
+
+        client.send_message(PATHS["ch1_vol"], 0.444)
+        print(f"📤 전송 완료: {PATHS['ch1_vol']} = 0.444 (bridge '🔄 VOL 변환' 로그 확인)")
+        time.sleep(2)
+
+        client.send_message(PATHS["ch1_mute"], 0.0)
+        print(f"📤 전송 완료: {PATHS['ch1_mute']} = 0.0")
+        time.sleep(2)
+
+        client.send_message(PATHS["ch1_vol"], 1.0)
+        print(f"📤 전송 완료: {PATHS['ch1_vol']} = 1.0 (Xilica 푸시 로그 확인)")
+    except Exception as e:
+        print(f"❌ 데이터 전송 오류: {e}")
+
+if __name__ == "__main__":
+    send_subscribe_renew()
+    send_ch1_data()
+    print("\n--- 테스트 완료 ---")
+    print("bridge 콘솔/파일 로그 (/tmp/bridge_debug.log) 확인: '✅'와 '📤 푸시' 나와야 함.")
+    input("Enter로 재실행...")

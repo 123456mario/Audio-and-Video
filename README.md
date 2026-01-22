@@ -263,3 +263,37 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Special Thanks
 
 [Onyx-and-Iris](https://github.com/onyx-and-iris) for writing the XAir Python module
+
+## Xilica Integration & Raspberry Pi Deployment
+
+This repository includes custom bridge services to integrate a Xilica Solaro processor with various AV devices via a Raspberry Pi.
+
+### System Architecture
+
+The Raspberry Pi runs three systemd services to bridge protocols:
+
+1.  **Art-Net Bridge (`artnet_bridge.service`)**
+    *   **Source**: Xilica (UDP Port **10021**)
+    *   **Dest**: DMX Node (UDP Port **6454**)
+    *   **Protocol**: Translates custom Xilica commands to Art-Net DMX packets.
+
+2.  **OSC Bridge (`osc_bridge.service`)**
+    *   **Source**: Xilica (TCP Port **1500**) <-> Behringer Wing (OSC UDP **2223** / **10023**)
+    *   **Function**: Bidirectional control of Faders and Mutes.
+    *   **Feedback**: Listens on Port **10023** for Wing changes and updates Xilica via TCP.
+
+3.  **PTZ Camera Bridge (`ptz_cam.service`)**
+    *   **Source**: Xilica (UDP Port **10001**)
+    *   **Dest**: PTZ Cameras (HTTP/Visca)
+    *   **Function**: Pan/Tilt/Zoom control with reliable queuing.
+
+### Deployment
+
+To deploy updates to the Raspberry Pi:
+
+1.  Ensure SSH access to the Pi.
+2.  Run the deployment script:
+    ```bash
+    ./deploy_services.sh
+    ```
+    This will copy all Python scripts and Service files, then restart the systemd daemons.

@@ -1,0 +1,8 @@
+#!/usr/bin/expect -f
+set timeout 10
+set pass "4200"
+spawn ssh -o StrictHostKeyChecking=no pi@192.168.1.50 "pgrep -f novastar_bridge"
+expect {
+    "password:" { send "$pass\r"; exp_continue }
+    eof
+}

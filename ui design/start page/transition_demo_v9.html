@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Set 9: Focus Shift</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .case-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 380px;
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+            text-align: center;
+        }
+
+        .module-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            /* Physical gap */
+        }
+
+        .btn-module {
+            width: 366px;
+            height: 106px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease-out;
+            /* Smooth fade */
+        }
+
+        .text {
+            font-size: 40px;
+            font-weight: bold;
+            transition: all 0.5s ease-out;
+        }
+
+        /* STATES */
+        /* Active State (Green, Bright) */
+        .state-active {
+            background-color: #009953;
+            transform: scale(1.0);
+            box-shadow: 0 4px 10px rgba(0, 153, 83, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .state-active .text {
+            color: white;
+            opacity: 1;
+        }
+
+        /* Inactive State (Dark, Dim) */
+        .state-inactive {
+            background-color: #004422;
+            /* Very dark green / almost black */
+            transform: scale(0.98);
+            /* Slightly recessed */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+            /* Inner shadow look */
+            border: 2px solid transparent;
+        }
+
+        .state-inactive .text {
+            color: rgba(255, 255, 255, 0.2);
+            /* Very dim text */
+            opacity: 0.5;
+        }
+
+        /* Hidden State (If preferred) */
+        .state-hidden {
+            background-color: #222;
+            /* Slot color */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .state-hidden .text {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Transition Set 9: Focus Shift (Simple)</h1>
+
+    <div class="container">
+
+        <!-- CASE 16: Focus Shift -->
+        <div class="case-wrapper">
+            <div class="label">16. Focus Shift (Dim/Bright)</div>
+            <div class="module-group case16">
+
+                <!-- TOP: Starts Active -->
+                <div class="btn-module state-active" id="topBtn">
+                    <div class="text">시작하기</div>
+                </div>
+
+                <!-- BOTTOM: Starts Inactive -->
+                <div class="btn-module state-inactive" id="bottomBtn">
+                    <div class="text">다음 페이지 이동</div>
+                </div>
+            </div>
+            <div style="margin-top:20px; color:#666; font-size:0.9em;">
+                Requires only 2 images per button (Active/Inactive).<br>
+                Managed by simple Logic State.
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 50px; text-align: center;">
+        <button onclick="playAnimation()"
+            style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #333; color: white; border-radius: 5px;">▶
+            Trigger Focus Shift</button>
+    </div>
+
+    <script>
+        function playAnimation() {
+            const topBtn = document.getElementById('topBtn');
+            const bottomBtn = document.getElementById('bottomBtn');
+
+            // RESET
+            topBtn.className = 'btn-module state-active';
+            bottomBtn.className = 'btn-module state-inactive';
+
+            // ANIMATE
+            setTimeout(() => {
+                // Shift Focus!
+                // Top becomes inactive
+                topBtn.className = 'btn-module state-inactive'; // Or state-hidden
+
+                // Bottom becomes active
+                bottomBtn.className = 'btn-module state-active';
+
+            }, 500);
+        }
+    </script>
+</body>
+
+</html>

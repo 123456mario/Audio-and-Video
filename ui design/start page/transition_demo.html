@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Transition Effects</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .case-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 380px;
+            /* Slightly wider than button */
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Module Container representing the Physical Layout */
+        .module-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            /* Gap between Top and Bottom module */
+        }
+
+        /* Common Button Style */
+        .btn-module {
+            width: 366px;
+            height: 106px;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #006432;
+            /* Base Dark */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .text {
+            position: absolute;
+            z-index: 10;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            -webkit-text-stroke: 1px white;
+        }
+
+        /* Water Fill (Only on Top Button initially) */
+        .water-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background-color: #009953;
+            z-index: 1;
+        }
+
+        /* =========================================
+           CASE 1: SLIDE (Top Slides Up/Out, Bottom Slides Up/In)
+           ========================================= */
+        .case1 .btn-top {
+            overflow: hidden;
+        }
+
+        .case1 .btn-top .content-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #009953;
+            /* Assume filled state */
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .case1 .btn-bottom {
+            background-color: transparent;
+            /* Empty slot initially? Or transparent PNG? */
+            box-shadow: none;
+            /* Hidden */
+        }
+
+        .case1 .btn-bottom .content-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #009953;
+            border-radius: 10px;
+            transform: translateY(100%);
+            /* Hidden below */
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1), opacity 0.6s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Trigger */
+        .case1.active .btn-top .content-wrapper {
+            transform: translateY(-105%);
+            /* Slide Up OUT */
+        }
+
+        .case1.active .btn-bottom .content-wrapper {
+            transform: translateY(0%);
+            /* Slide Up IN */
+            opacity: 1;
+        }
+
+
+        /* =========================================
+           CASE 2: FADE (Top Fades Out, Bottom Fades In)
+           ========================================= */
+        .case2 .btn-top {
+            transition: opacity 0.6s ease-in-out;
+            opacity: 1;
+        }
+
+        .case2 .btn-bottom {
+            transition: opacity 0.6s ease-in-out;
+            opacity: 0.1;
+            /* Dimmed or Hidden */
+            filter: grayscale(100%);
+        }
+
+        .case2.active .btn-top {
+            opacity: 0.2;
+            /* Dimmed */
+            filter: grayscale(100%);
+        }
+
+        .case2.active .btn-bottom {
+            opacity: 1;
+            filter: grayscale(0%);
+            background-color: #009953;
+        }
+
+
+        /* =========================================
+           CASE 3: FLIP (Top Flips Shut, Bottom Flips Open)
+           ========================================= */
+        .case3 .perspective {
+            perspective: 800px;
+        }
+
+        .case3 .btn-top,
+        .case3 .btn-bottom {
+            backface-visibility: hidden;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .case3 .btn-top {
+            transform: rotateX(0deg);
+        }
+
+        .case3 .btn-bottom {
+            transform: rotateX(-90deg);
+            /* Hidden edge-on initially */
+            background-color: #009953;
+            opacity: 0;
+        }
+
+        .case3.active .btn-top {
+            transform: rotateX(90deg);
+            /* Flip Up/Out */
+            opacity: 0;
+        }
+
+        .case3.active .btn-bottom {
+            transform: rotateX(0deg);
+            /* Flip In */
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Separated Module Transitions</h1>
+
+    <div class="container">
+
+        <!-- CASE 1 -->
+        <div class="case-wrapper">
+            <div class="label">1. Slide (Vertical Shift)</div>
+            <div class="module-group case1">
+                <!-- Top Module -->
+                <div class="btn-module btn-top">
+                    <div class="content-wrapper">
+                        <div class="water-fill" id="fill1"></div>
+                        <div class="text">시작하기</div>
+                    </div>
+                </div>
+                <!-- Bottom Module -->
+                <div class="btn-module btn-bottom">
+                    <div class="content-wrapper">
+                        <div class="text">다음 페이지 이동</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASE 2 -->
+        <div class="case-wrapper">
+            <div class="label">2. Cross Fade (Dimming)</div>
+            <div class="module-group case2">
+                <div class="btn-module btn-top">
+                    <div class="water-fill" id="fill2"></div>
+                    <div class="text">시작하기</div>
+                </div>
+                <div class="btn-module btn-bottom">
+                    <div class="text">다음 페이지 이동</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASE 3 -->
+        <div class="case-wrapper">
+            <div class="label">3. 3D Flip (Sequence)</div>
+            <div class="module-group case3">
+                <div class="btn-module btn-top perspective">
+                    <div class="water-fill" id="fill3"></div>
+                    <div class="text">시작하기</div>
+                </div>
+                <div class="btn-module btn-bottom perspective">
+                    <div class="text">다음 페이지 이동</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 50px; text-align: center;">
+        <button onclick="playAnimation()"
+            style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #333; color: white; border-radius: 5px;">▶
+            Play Transition</button>
+    </div>
+
+    <script>
+        function playAnimation() {
+            // Reset
+            document.querySelectorAll('.water-fill').forEach(el => {
+                el.style.transition = 'none';
+                el.style.width = '0%';
+            });
+            document.querySelectorAll('.module-group').forEach(el => el.classList.remove('active'));
+
+            // Start Fill
+            setTimeout(() => {
+                document.querySelectorAll('.water-fill').forEach(el => {
+                    el.style.transition = 'width 2s linear';
+                    el.style.width = '100%';
+                });
+            }, 100);
+
+            // Trigger Transition
+            setTimeout(() => {
+                document.querySelectorAll('.module-group').forEach(el => el.classList.add('active'));
+            }, 2100);
+        }
+    </script>
+</body>
+
+</html>
+```

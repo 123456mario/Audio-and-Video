@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Set 3: Fill & Drop</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .case-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 380px;
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+            text-align: center;
+        }
+
+        .module-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            /* Logical gap */
+        }
+
+        .btn-module {
+            width: 366px;
+            height: 106px;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #006432;
+            /* Dark Base */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .text {
+            position: absolute;
+            z-index: 20;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            -webkit-text-stroke: 1px white;
+        }
+
+        /* The Moving Fill Element */
+        /* Takes up the full size of a button, but moves around */
+        .moving-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            /* Start width 0 */
+            height: 106px;
+            /* Full height of one button */
+            background-color: #009953;
+            z-index: 15;
+            /* Below text (20) but above base (10) */
+            border-radius: 10px;
+        }
+
+        /* CASE 8: FILL & DROP
+           1. Top Button Fills Left -> Right.
+           2. Then, the whole Green Block slides DOWN to the Bottom Button.
+           3. Bottom Button catches it. */
+
+        .case8 .module-group {
+            /* We need a shared container for the moving fill to traverse the gap? 
+               Actually, we can animate the 'top' property of the fill relative to the group container.
+            */
+        }
+
+        /* We'll put the .moving-fill inside the .module-group container, absolutely positioned */
+        .case8 .moving-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0px;
+            height: 106px;
+            border-radius: 10px;
+        }
+
+        /* Text needs to be transparent on empty, white on filled? 
+           User said "Text is white on dark green". 
+           So text is always white. 
+           The fill is just the background color changing.
+        */
+    </style>
+</head>
+
+<body>
+
+    <h1>Transition Set 3: Flow Down</h1>
+
+    <div class="container">
+
+        <!-- CASE 8 -->
+        <div class="case-wrapper">
+            <div class="label">8. Fill Right -> Drop Down</div>
+            <!-- Relative container for the moving fill -->
+            <div class="module-group case8" id="case8-group">
+
+                <!-- The Moving Green Block -->
+                <div class="moving-fill" id="mover"></div>
+
+                <div class="btn-module btn-top">
+                    <!-- Text sits on top, Z-Index 20 -->
+                    <div class="text">시작하기</div>
+                </div>
+
+                <div class="btn-module btn-bottom">
+                    <div class="text">다음 페이지 이동</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 50px; text-align: center;">
+        <button onclick="playAnimation()"
+            style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #333; color: white; border-radius: 5px;">▶
+            Play "Fill & Drop"</button>
+    </div>
+
+    <script>
+        function playAnimation() {
+            const mover = document.getElementById('mover');
+            const topText = document.querySelector('.case8 .btn-top .text');
+            const bottomText = document.querySelector('.case8 .btn-bottom .text');
+            const topBase = document.querySelector('.case8 .btn-top'); // To fade out the dark background too if needed?
+            // User said "Start button disappears". Maybe the whole dark base too?
+            // Let's fade the text first, and maybe the base opacity if disjointed.
+
+            // RESET
+            mover.style.transition = 'none';
+            mover.style.width = '0px';
+            mover.style.top = '0px';
+            topText.style.transition = 'none';
+            topText.style.opacity = '1';
+            bottomText.style.opacity = '0.3'; // Visible but inactive (Dim)
+            topBase.style.transition = 'none';
+            topBase.style.opacity = '1';
+
+            // STEP 1: FILL RIGHT (0s to 2s)
+            setTimeout(() => {
+                mover.style.transition = 'width 2s linear';
+                mover.style.width = '366px'; // Full Width
+            }, 100);
+
+            // STEP 2: DROP DOWN & FADE SWAP (2s to 3s)
+            setTimeout(() => {
+                // Drop the Green Block
+                mover.style.transition = 'top 0.8s cubic-bezier(0.5, 0, 0.2, 1)';
+                mover.style.top = '126px';
+
+                // Fade Out Top Text & Base
+                topText.style.transition = 'opacity 0.5s ease-out';
+                topText.style.opacity = '0';
+
+                topBase.style.transition = 'opacity 0.8s ease-out';
+                topBase.style.opacity = '1'; // Keep base visible? User said "Start button disappears".
+                // If text fades to dim, and green block leaves, it effectively "deactivates".
+                // Let's fade Text to 0 if user wants "disappears".
+
+                // Fade In Bottom Text (Active)
+                bottomText.style.transition = 'opacity 0.8s ease-in';
+                bottomText.style.opacity = '1';
+            }, 2100);
+        }
+    </script>
+</body>
+
+</html>

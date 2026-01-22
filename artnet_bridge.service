@@ -1,0 +1,14 @@
+[Unit]
+Description=Art-Net Bridge Service (Xilica to DMX)
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/behringer-mixer
+ExecStart=/home/pi/behringer-mixer/venv/bin/python -u /home/pi/behringer-mixer/artnet_bridge.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

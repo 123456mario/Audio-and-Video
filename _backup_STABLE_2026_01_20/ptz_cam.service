@@ -1,0 +1,14 @@
+[Unit]
+Description=PTZ Camera Control Bridge
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/behringer-mixer
+ExecStart=/home/pi/behringer-mixer/venv/bin/python -u /home/pi/behringer-mixer/ptz_cam.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

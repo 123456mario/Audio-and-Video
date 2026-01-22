@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Set 5: Rain Erasure</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #222;
+            /* Dark for rain contrast */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .case-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 380px;
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #ddd;
+            text-align: center;
+        }
+
+        .module-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .btn-module {
+            width: 366px;
+            height: 106px;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #006432;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .text {
+            position: absolute;
+            z-index: 20;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            -webkit-text-stroke: 1px white;
+        }
+
+        .water-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background-color: #009953;
+            z-index: 1;
+        }
+
+        /* 
+           CASE 10: RAIN ERASURE
+           1. Rain drops start falling (Overlay).
+           2. Top Button: Masked out from Top to Bottom (Granular dissolve).
+           3. Bottom Button: Text unblurs / fades in.
+        */
+
+        .case10 .rain-overlay {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 300px;
+            /* Cover both buttons */
+            pointer-events: none;
+            z-index: 50;
+            background: repeating-linear-gradient(0deg,
+                    transparent 0,
+                    transparent 10px,
+                    rgba(255, 255, 255, 0.4) 10px,
+                    rgba(255, 255, 255, 0.1) 20px);
+            background-size: 100% 200px;
+            opacity: 0;
+        }
+
+        .case10.active .rain-overlay {
+            opacity: 1;
+            animation: rain-fall 0.5s linear infinite;
+        }
+
+        @keyframes rain-fall {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 0 200px;
+            }
+        }
+
+        /* Top Button Erasure */
+        .case10 .btn-top {
+            /* Use mask to wipe down */
+            -webkit-mask-image: linear-gradient(to bottom, black 100%, black 100%);
+            -webkit-mask-size: 100% 200%;
+            -webkit-mask-position: 0 0;
+        }
+
+        .case10.active .btn-top {
+            /* Move transition mask to hide it */
+            /* Gradient: Transparent(Top) -> Black(Bottom). Moving it down makes it transparent. */
+            /* Wait, standard wipe: from black to transparent. */
+            /* Start: All Black (Visible). */
+            /* End: All Transparent (Invisible). */
+            -webkit-mask-image: linear-gradient(to bottom, transparent 50%, black 50%);
+            -webkit-mask-size: 100% 250%;
+            /* Large enough */
+            animation: wipe-down 1.5s forwards linear;
+        }
+
+        @keyframes wipe-down {
+            0% {
+                -webkit-mask-position: 0 100%;
+            }
+
+            /* Black part covers all */
+            100% {
+                -webkit-mask-position: 0 0%;
+            }
+
+            /* Transparent part covers all */
+        }
+
+        /* Bottom Button Appearance */
+        .case10 .btn-bottom .text {
+            opacity: 0.3;
+            filter: blur(5px);
+            /* Unclear initially */
+            transition: all 1s ease-in;
+        }
+
+        .case10.active .btn-bottom .text {
+            opacity: 1;
+            filter: blur(0px);
+            /* Becomes clear */
+            transition-delay: 0.5s;
+            /* Wait for rain to hit */
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Transition Set 5: Rain Erasure</h1>
+
+    <div class="container">
+
+        <!-- CASE 10 -->
+        <div class="case-wrapper">
+            <div class="label">10. Rain Wipe (Erasure)</div>
+            <div class="module-group case10">
+                <div class="rain-overlay" id="rain"></div>
+
+                <div class="btn-module btn-top">
+                    <!-- Text sits on top -->
+                    <div class="water-fill" id="fill10"></div>
+                    <div class="text">시작하기</div>
+                </div>
+
+                <div class="btn-module btn-bottom">
+                    <div class="text">다음 페이지 이동</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 50px; text-align: center;">
+        <button onclick="playAnimation()"
+            style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #444; color: white; border: 1px solid #666; border-radius: 5px;">▶
+            Play "Rain Erasure"</button>
+    </div>
+
+    <script>
+        function playAnimation() {
+            const wrapper = document.querySelector('.case10');
+            const fill = document.getElementById('fill10');
+            const rain = document.getElementById('rain');
+
+            // RESET
+            wrapper.classList.remove('active');
+            fill.style.transition = 'none';
+            fill.style.width = '0%';
+            rain.style.transition = 'none';
+            rain.style.opacity = '0'; // Stop rain
+
+            // Force Reflow
+            void wrapper.offsetWidth;
+
+            // STEP 1: FILL RIGHT
+            setTimeout(() => {
+                fill.style.transition = 'width 2s linear';
+                fill.style.width = '100%';
+            }, 100);
+
+            // STEP 2: RAIN START & ERASE
+            setTimeout(() => {
+                wrapper.classList.add('active');
+            }, 2100);
+
+            // Stop Rain eventually?
+            setTimeout(() => {
+                rain.style.transition = 'opacity 1s';
+                rain.style.opacity = '0';
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>

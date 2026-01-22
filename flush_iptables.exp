@@ -1,0 +1,16 @@
+#!/usr/bin/expect -f
+
+set timeout 5
+set host "192.168.1.50"
+set user "pi"
+set password "4200"
+
+# Flush iptables to clear firewall
+spawn ssh $user@$host "sudo iptables -F"
+
+expect {
+    "yes/no" { send "yes\r"; exp_continue }
+    "password:" { send "$password\r" }
+}
+
+expect eof

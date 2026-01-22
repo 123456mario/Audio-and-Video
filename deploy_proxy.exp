@@ -1,0 +1,25 @@
+#!/usr/bin/expect -f
+
+set timeout 20
+set ip "192.168.1.50"
+set user "pi"
+set pass "4200"
+set src_file "novastar_bridge.py"
+set dst_path "/home/pi/behringer-mixer/"
+
+# Step 1: SCP the file
+spawn scp -o StrictHostKeyChecking=no $src_file $user@$ip:$dst_path
+expect {
+    "password:" { send "$pass\r"; exp_continue }
+    eof
+}
+
+# Step 2: SSH and run the script
+# We use nohup to keep it running after exit
+spawn ssh -o StrictHostKeyChecking=no $user@$ip "nohup python3 ${dst_path}${src_file} > /dev/null 2>&1 &"
+expect {
+    "password:" { send "$pass\r" }
+}
+# Wait a bit to ensure command executes
+sleep 2
+exit

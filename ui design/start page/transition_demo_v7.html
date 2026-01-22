@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Set 7: Liquid Reveal</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .case-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 380px;
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+            text-align: center;
+        }
+
+        .module-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 250px;
+        }
+
+        .btn-style {
+            width: 366px;
+            height: 106px;
+            border-radius: 10px;
+            background-color: #006432;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            overflow: hidden;
+            /* Important for liquid masking */
+        }
+
+        .text {
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        /* 
+           CASE 13: LIQUID REVEAL (Based on #12)
+           - Top button drains. Top Text Fades Out.
+           - Stream falls.
+           - Bottom button fills. Bottom Text Fades In (Revealed).
+           - "Next Page hidden initially".
+        */
+
+        .case13 .btn-top {
+            top: 0;
+            background-color: #009953;
+            /* Full green initially */
+        }
+
+        .case13 .btn-top .text {
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .case13 .stream {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 0px;
+            background-color: #009953;
+            z-index: 5;
+            transition: height 0.3s ease-in;
+        }
+
+        .case13 .btn-bottom {
+            top: 126px;
+            background-color: #006432;
+            /* Empty/Dark base */
+        }
+
+        .case13 .btn-bottom .text {
+            opacity: 0;
+            /* Hidden initially */
+            transition: opacity 1s ease-in;
+            /* Reveal with fill */
+        }
+
+        .case13 .btn-bottom .fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background-color: #009953;
+            transition: height 1s linear;
+        }
+
+        /* Animation States */
+
+        .case13.active .btn-top {
+            /* Drain geometry handled by JS style or class? */
+            /* Let's use Clip Path again for the green background, but the button has text on top. */
+            /* If we clip the button, text clips too. */
+            /* Perfect. User wants start button to disappear. */
+            clip-path: inset(100% 0 0 0);
+            transition: clip-path 1s linear;
+        }
+
+        /* Wait, if we clip the Top Button container, the border/shadow also disappears. */
+        /* Is that desired? "Start button disappears". Yes. */
+        /* But usually we leave the module slot (Dark base). */
+        /* If we want to leave the dark base, we need a separate layer for the Green Fill. */
+
+        /* Revised Structure for Top: Dark Base + Green Fill Layer + Text */
+        .case13 .btn-top {
+            background-color: #006432;
+            /* Dark Base stays? */
+            /* "Start button disappears" - maybe the whole thing? */
+            /* Let's try draining the Green Fill leaving Dark Base. */
+            /* If user says "Button disappears", then maybe whole thing. */
+            /* But simpler UI usually keeps the slot. */
+            /* Let's stick to Draining the Green Color (Active State) to Dark (Inactive). */
+        }
+
+        .case13 .btn-top .green-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #009953;
+            top: 0;
+            left: 0;
+        }
+
+        .case13.active .btn-top .green-layer {
+            /* Drain down? No, drain out means level drops. */
+            /* height 0 or clip-path inset top 100% */
+            clip-path: inset(100% 0 0 0);
+            transition: clip-path 1s linear;
+        }
+
+        .case13.active .btn-top .text {
+            opacity: 0;
+            /* Text fades/disappears */
+        }
+
+        .case13.active .stream {
+            height: 140px;
+            /* Reach into bottom */
+            /* Then vanish */
+        }
+
+        .case13.active .btn-bottom .fill {
+            height: 100%;
+        }
+
+        .case13.active .btn-bottom .text {
+            opacity: 1;
+            /* Reveal */
+            transition-delay: 0.5s;
+            /* Wait for fill to start */
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Transition Set 7: Liquid Reveal</h1>
+
+    <div class="container">
+
+        <!-- CASE 13 (Liquid Reveal) -->
+        <div class="case-wrapper">
+            <div class="label">13. Liquid Reveal (Refined #12)</div>
+            <div class="module-group case13">
+
+                <!-- TOP -->
+                <div class="btn-style btn-top" id="top13">
+                    <div class="green-layer" id="topFill13"></div>
+                    <div class="text" id="topText13">시작하기</div>
+                </div>
+
+                <!-- STREAM -->
+                <div class="stream" id="stream13"></div>
+
+                <!-- BOTTOM -->
+                <div class="btn-style btn-bottom">
+                    <div class="fill" id="bottomFill13"></div>
+                    <div class="text" id="bottomText13">다음 페이지 이동</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 50px; text-align: center;">
+        <button onclick="playAnimation()"
+            style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #333; color: white; border-radius: 5px;">▶
+            Play "Liquid Reveal"</button>
+    </div>
+
+    <script>
+        function playAnimation() {
+            const case13 = document.querySelector('.case13');
+            const stream = document.getElementById('stream13');
+
+            // RESET
+            case13.classList.remove('active');
+            stream.style.transition = 'none';
+            stream.style.height = '0px';
+            stream.style.top = '100px';
+
+            // Force Reflow
+            void case13.offsetWidth;
+
+            // ANIMATE
+            setTimeout(() => {
+                // 1. Stream starts
+                stream.style.transition = 'height 0.3s ease-out';
+                stream.style.height = '140px';
+
+                // 2. Trigger Class (Drains Top, Fills Bottom, Swaps Text)
+                setTimeout(() => {
+                    case13.classList.add('active');
+                }, 300);
+
+                // 3. Stream finishes (moves down/vanishes)
+                setTimeout(() => {
+                    stream.style.transition = 'height 0.3s linear, top 0.3s linear';
+                    stream.style.top = '240px'; // Move drop down
+                    stream.style.height = '0px'; // Shrink
+                }, 1300);
+
+            }, 100);
+        }
+    </script>
+</body>
+
+</html>

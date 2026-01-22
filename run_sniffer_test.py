@@ -1,0 +1,58 @@
+import pty
+import os
+import sys
+import time
+
+HOST = "192.168.1.50"
+USER = "pi"
+PASS = "4200"
+
+LOCAL_FILE = "/Users/gimdongseong/Documents/GitHub/behringer-mixer/simple_wing_sniffer.py"
+REMOTE_FILE = "simple_wing_sniffer.py"
+
+def run_ssh_cmd(cmd):
+    print(f"Running: {cmd}")
+    pid, fd = pty.fork()
+    if pid == 0:
+        os.execv("/bin/sh", ["/bin/sh", "-c", cmd])
+    else:
+        output = b""
+        while True:
+            try:
+                data = os.read(fd, 1024)
+                if not data: break
+                output += data
+                # Stream output
+                sys.stdout.buffer.write(data)
+                sys.stdout.flush()
+                
+                low_data = data.lower()
+                if b"password:" in low_data:
+                    os.write(fd, f"{PASS}\n".encode())
+                if b"continue connecting" in low_data:
+                    os.write(fd, b"yes\n")
+            except OSError:
+                break
+        
+        _, status = os.waitpid(pid, 0)
+        return output.decode('utf-8', errors='ignore')
+
+def deploy_and_sniff():
+    print("--- 1. Stopping osc_bridge service ---")
+    run_ssh_cmd(f"ssh {USER}@{HOST} 'echo {PASS} | sudo -S systemctl stop osc_bridge'")
+    run_ssh_cmd(f"ssh {USER}@{HOST} 'pkill -f osc_bridge.py || true'")
+    time.sleep(1)
+    
+    print("\n--- 2. Transferring sniffer script ---")
+    run_ssh_cmd(f"scp {LOCAL_FILE} {USER}@{HOST}:~/{REMOTE_FILE}")
+    
+    print("\n--- 3. Running Sniffer (20 Seconds) ---")
+    print(">>> PLEASE MOVE MIXER FADERS NOW <<<")
+    # Timeout after 20 seconds
+    run_ssh_cmd(f"ssh {USER}@{HOST} 'timeout 20s python3 -u ~/{REMOTE_FILE}'")
+    
+    print("\n--- Sniffing Complete. Restoring Service... ---")
+    run_ssh_cmd(f"ssh {USER}@{HOST} 'echo {PASS} | sudo -S systemctl start osc_bridge'")
+
+if __name__ == "__main__":
+    deploy_and_sniff()

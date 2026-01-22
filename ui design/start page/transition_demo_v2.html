@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Effects Set 2</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+            background-color: #222;
+            /* Dark background for better contrast with Flash/Glitch */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        h1 {
+            margin-bottom: 40px;
+        }
+
+        .container {
+            display: flex;
+            gap: 80px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .case-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 380px;
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #ddd;
+            text-align: center;
+        }
+
+        .module-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .btn-module {
+            width: 366px;
+            height: 106px;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #006432;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .text {
+            position: absolute;
+            z-index: 10;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            -webkit-text-stroke: 1px white;
+        }
+
+        .water-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background-color: #009953;
+            z-index: 1;
+        }
+
+        /* =========================================
+           CASE 4: SQUEEZE (Curtain)
+           ========================================= */
+        .case4 .btn-top {
+            transform-origin: top;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+        }
+
+        .case4 .btn-bottom {
+            transform-origin: bottom;
+            transform: scaleY(0);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #009953;
+        }
+
+        .case4.active .btn-top {
+            transform: scaleY(0);
+            opacity: 0;
+        }
+
+        .case4.active .btn-bottom {
+            transform: scaleY(1);
+        }
+
+
+        /* =========================================
+           CASE 5: FLASH (Energy)
+           ========================================= */
+        .case5 {
+            position: relative;
+        }
+
+        .case5 .flash-overlay {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background-color: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .case5 .btn-bottom {
+            opacity: 0;
+            background-color: #009953;
+        }
+
+        .case5.active .flash-overlay {
+            animation: flash 0.6s ease-out;
+        }
+
+        .case5.active .btn-top {
+            opacity: 0;
+            /* Instantly hide when flash covers */
+            transition: opacity 0s 0.1s;
+            /* Delay slightly to happen under flash */
+        }
+
+        .case5.active .btn-bottom {
+            opacity: 1;
+            transition: opacity 0s 0.1s;
+        }
+
+        @keyframes flash {
+            0% {
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+                filter: blur(5px);
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+
+        /* =========================================
+           CASE 6: GLITCH (Tech)
+           ========================================= */
+        /* Simulating glitch with skew/translate keyframes */
+        .case6 .btn-bottom {
+            opacity: 0;
+            background-color: #009953;
+        }
+
+        .case6.active .btn-top {
+            animation: glitch-anim-out 0.4s forwards;
+        }
+
+        .case6.active .btn-bottom {
+            animation: glitch-anim-in 0.4s forwards 0.3s;
+            /* Start after out */
+        }
+
+        @keyframes glitch-anim-out {
+            0% {
+                transform: translate(0);
+                opacity: 1;
+            }
+
+            20% {
+                transform: translate(-5px, 5px) skewX(20deg);
+                opacity: 0.8;
+                clip-path: inset(10% 0 40% 0);
+            }
+
+            40% {
+                transform: translate(5px, -5px) skewX(-20deg);
+                opacity: 0.6;
+                clip-path: inset(40% 0 10% 0);
+            }
+
+            60% {
+                transform: translate(-5px, 0) skewX(5deg);
+                opacity: 0.4;
+                clip-path: inset(0 0 0 0);
+            }
+
+            100% {
+                transform: translate(0) scaleY(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes glitch-anim-in {
+            0% {
+                transform: translate(0) scaleY(0);
+                opacity: 0;
+            }
+
+            20% {
+                transform: translate(5px, 5px) skewX(-20deg);
+                opacity: 0.4;
+                clip-path: inset(20% 0 50% 0);
+            }
+
+            40% {
+                transform: translate(-5px, -5px) skewX(20deg);
+                opacity: 0.8;
+                clip-path: inset(50% 0 20% 0);
+            }
+
+            100% {
+                transform: translate(0) scaleY(1);
+                opacity: 1;
+            }
+        }
+
+        /* =========================================
+           CASE 7: PURE DISSOLVE (Requested)
+           ========================================= */
+        .case7 .btn-top {
+            transition: opacity 1.5s ease-in-out;
+            /* Slower, gradual fade */
+            opacity: 1;
+        }
+
+        .case7 .btn-bottom {
+            transition: opacity 1.5s ease-in-out;
+            opacity: 0;
+            /* Completely invisible initially */
+            background-color: #009953;
+        }
+
+        .case7.active .btn-top {
+            opacity: 0;
+            /* Completely disappear */
+        }
+
+        .case7.active .btn-bottom {
+            opacity: 1;
+            /* Fully appear */
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Transition Effects Set 2</h1>
+
+    <div class="container">
+
+        <!-- CASE 7 -->
+        <div class="case-wrapper">
+            <div class="label">7. Pure Dissolve (Gradual)</div>
+            <div class="module-group case7">
+                <div class="btn-module btn-top">
+                    <div class="water-fill" id="fill7"></div>
+                    <div class="text">시작하기</div>
+                </div>
+                <div class="btn-module btn-bottom">
+                    <div class="text">다음 페이지 이동</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASE 4 -->
+        <div class="case-wrapper">
+            <div class="label">4. Squeeze (Shut/Open)</div>
+            <div class="module-group case4">
+                <div class="btn-module btn-top">
+                    <div class="content-wrapper">
+                        <div class="water-fill" id="fill4"></div>
+                        <div class="text">시작하기</div>
+                    </div>
+                </div>
+                <div class="btn-module btn-bottom">
+                    <div class="content-wrapper">
+                        <div class="text">다음 페이지 이동</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASE 5 -->
+        <div class="case-wrapper">
+            <div class="label">5. Flash (Energy)</div>
+            <div class="module-group case5">
+                <div class="flash-overlay"></div>
+                <div class="btn-module btn-top">
+                    <div class="water-fill" id="fill5"></div>
+                    <div class="text">시작하기</div>
+                </div>
+                <div class="btn-module btn-bottom">
+                    <div class="text">다음 페이지 이동</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASE 6 -->
+        <div class="case-wrapper">
+            <div class="label">6. Glitch (Tech)</div>
+            <div class="module-group case6">
+                <div class="btn-module btn-top">
+                    <div class="water-fill" id="fill6"></div>
+                    <div class="text">시작하기</div>
+                </div>
+                <div class="btn-module btn-bottom">
+                    <div class="text">다음 페이지 이동</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls" style="margin-top: 50px; text-align: center;">
+        <button onclick="playAnimation()"
+            style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #444; color: white; border: 1px solid #666; border-radius: 5px;">▶
+            Play Set 2</button>
+    </div>
+
+    <script>
+        function playAnimation() {
+            // Reset
+            document.querySelectorAll('.water-fill').forEach(el => {
+                el.style.transition = 'none';
+                el.style.width = '0%';
+            });
+            document.querySelectorAll('.module-group').forEach(el => el.classList.remove('active'));
+
+            // Start Fill
+            setTimeout(() => {
+                document.querySelectorAll('.water-fill').forEach(el => {
+                    el.style.transition = 'width 2s linear';
+                    el.style.width = '100%';
+                });
+            }, 100);
+
+            // Trigger Transition
+            setTimeout(() => {
+                document.querySelectorAll('.module-group').forEach(el => el.classList.add('active'));
+            }, 2100);
+        }
+    </script>
+</body>
+
+</html>
