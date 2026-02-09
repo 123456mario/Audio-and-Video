@@ -1,0 +1,16 @@
+[Unit]
+Description=Wing to Xilica Bridge Service
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/behringer-mixer
+ExecStart=/usr/bin/python3 -u bridge_v5_safe.py
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/pi/behringer-mixer/bridge_v5_log.txt
+StandardError=append:/home/pi/behringer-mixer/bridge_v5_log.txt
+
+[Install]
+WantedBy=multi-user.target
